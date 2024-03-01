@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const morgan = require("morgan")
-const cors = require("cors")
+const morgan = require("morgan");
+const cors = require("cors");
+const nodemailer = require('nodemailer');
+const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 const app=express();
@@ -11,6 +13,14 @@ app.use(express.json())
 
 const port = 3000
 
+//nodemailer transport 
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
+  }
+});
 
 
 mongoose
@@ -24,9 +34,12 @@ mongoose
   })
   .catch((err) => console.log(err));
 
-
+//collections
 const Name = require('./Models/test');
+const User =require('./Models/user');
+const LogginUsers = require('./Models/logginUsers');
 
+//Routes
 app.post('/name', async(request,response)=>{
   const {name} = request.body;
   const existing = await Name.findOne({name})
@@ -43,4 +56,58 @@ app.post('/name', async(request,response)=>{
 app.get('/',async(request,response)=>{
   const data = await Name.find();
   response.send({data});
+});
+
+app.post('/sendOTP', async (req, res) => {
+  const { email } = req.body;
+  try {
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Save user email and OTP to the database
+    await User.findOneAndUpdate({ email }, { otp:otp, createdAt: Date.now() }, { upsert: true });
+
+    // Send OTP email
+    const mailOptions = {
+      from: process.env.EMAIL_USERNAME,
+      to: email,
+      subject: 'OTP Verification',
+      text: `Your OTP is: ${otp}`,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent: ' + info.response);
+
+    res.status(200).send({ message: 'OTP sent successfully' });
+  } catch (error) {
+    console.error('Error sending OTP:', error);
+    res.status(500).send({ message: 'Error sending OTP' });
+  }
+});
+
+app.post('/verifyOtp',async(request,response)=>{
+   const {email,otp} = request.body
+   const currentTime = Date.now()
+   const expiryDate = currentTime - (1*60*1000)
+   const payload = {
+    "email" :email
+   };
+   const token = jwt.sign(payload, "jwt_secret");
+   const existing = await User.findOne({email});
+   if(!existing){
+    response.send({"message":"User Doesn't exist"}).status(400);
+    return;
+   }
+   const condition = await User.findOne({email,otp,createdAt : {$gt : expiryDate}});
+   console.log(condition);
+   if(condition==null){
+    response.send({"message":"Invalid OTP or Time Expired"}).status(400);
+    return;
+   }
+   const loginUsers = await LogginUsers.findOne({email});
+   if(!loginUsers && condition) {
+     const uploadUser = new LogginUsers({email})
+     await uploadUser.save();
+    }
+   response.status(200).send({"message":"Logged in succefully", "token" : token});
 })
