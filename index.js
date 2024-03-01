@@ -95,13 +95,13 @@ app.post('/verifyOtp',async(request,response)=>{
    const token = jwt.sign(payload, "jwt_secret");
    const existing = await User.findOne({email});
    if(!existing){
-    response.send({"message":"User Doesn't exist"}).status(400);
+    response.status(400).send({"message":"User Doesn't exist"});
     return;
    }
    const condition = await User.findOne({email,otp,createdAt : {$gt : expiryDate}});
    console.log(condition);
    if(condition==null){
-    response.send({"message":"Invalid OTP or Time Expired"}).status(400);
+    response.status(400).send({"message":"Invalid OTP or Time Expired"});
     return;
    }
    const loginUsers = await LogginUsers.findOne({email});
