@@ -29,11 +29,15 @@ const Name = require('./Models/test');
 
 app.post('/name', async(request,response)=>{
   const {name} = request.body;
-  const post = new Name({
-   name
-  });
-  await post.save();
-  response.send("done");
+  const existing = await Name.findOne({name})
+  if(existing){
+    response.send('user already exists');
+  }
+  else{
+    const newName = new Name({name});
+    await newName.save();
+    response.send('name added');
+  }
 });
 
 app.get('/',async(request,response)=>{
