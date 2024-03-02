@@ -27,7 +27,7 @@ router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), a
     const { id, email } = request;
     try {
         const user_id = id;
-        const imageUrl=`https://example-keij.vercel.app/uploads/${request.file.filename}`;
+        const imageUrl=`https://example-na5m.onrender.com/uploads/${req.file.filename}`;
         const existing = await profile.findOne({ email });
 
         const data = {
@@ -88,7 +88,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
     const {email,id} = request;
     try {
         const user_id = id;
-        const imageUrl=`https://example-keij.vercel.app/uploads/${request.file.filename}`;
+        const imageUrl=`https://example-na5m.onrender.com/uploads/${request.file.filename}`;
         const existing = await enquire.findOne({ email });
         console.log(existing);
         const data = {
@@ -117,14 +117,15 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
         response.status(400).send({ "message": "Failed to push the data" });
     }
 });
-router.post('/name', async(request,response)=>{
+router.post('/name', upload.single('imageUrl'), async(request,response)=>{
     const {name} = request.body;
-    const existing = await Name.findOne({name})
+    const existing = await Name.findOne({name});
+    const imageUrl= `https://example-na5m.onrender.com/uploads/${request.file.filename}`;
     if(existing){
       response.send('user already exists');
     }
     else{
-      const newName = new Name({name});
+      const newName = new Name({name,imageUrl});
       await newName.save();
       response.send('name added');
     }
