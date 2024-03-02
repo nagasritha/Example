@@ -26,7 +26,7 @@ router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), a
     const { id, email } = request;
     try {
         const user_id = id;
-        const imageUrl = `https://example-keij-k1do45f39-nagasritha.vercel.app/uploads/${request.file.filename}`;
+        const imageUrl = `https://example-keij.vercel.app/uploads/images/${request.file.filename}`;
         const existing = await profile.findOne({ email });
 
         const data = {
@@ -87,7 +87,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
     const {email,id} = request;
     try {
         const user_id = id;
-        const imageUrl = `https://example-keij-k1do45f39-nagasritha.vercel.app/uploads/${request.file.filename}`;
+        const imageUrl = `https://example-keij.vercel.app/uploads/images/${request.file.filename}`;
         const existing = await enquire.findOne({ email });
         console.log(existing);
         const data = {
