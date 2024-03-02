@@ -9,6 +9,7 @@ router.use(express.json());
 //collection
 const profile = require('../Models/profile');
 const enquire = require('../Models/enquire');
+const Name = require('../Models/test');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -116,5 +117,17 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
         response.status(400).send({ "message": "Failed to push the data" });
     }
 });
+router.post('/name', async(request,response)=>{
+    const {name} = request.body;
+    const existing = await Name.findOne({name})
+    if(existing){
+      response.send('user already exists');
+    }
+    else{
+      const newName = new Name({name});
+      await newName.save();
+      response.send('name added');
+    }
+  });
 
 module.exports = router; 
