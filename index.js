@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 const nodemailer = require('nodemailer');
 const jwt = require("jsonwebtoken");
+const authentication = require("./middleware/authentication");
 require('dotenv').config();
 
 const app=express();
@@ -111,3 +112,14 @@ app.post('/verifyOtp',async(request,response)=>{
     }
    response.status(200).send({"message":"Logged in succefully", "token" : token});
 })
+
+app.get('/get',authentication,async(req,res)=>{
+  const {id,email}= req;
+  console.log(id,email);
+  res.send('called');
+})
+
+//router
+const profileDetails = require('./routes/profileDetails');
+
+app.use('/api', profileDetails);
