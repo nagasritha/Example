@@ -27,7 +27,7 @@ router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), a
     const { id, email } = request;
     try {
         const user_id = id;
-        const imageUrl=`https://example-na5m.onrender.com/uploads/${req.file.filename}`;
+        const imageUrl=`https://example-na5m.onrender.com/uploads/${request.file.filename}`;
         const existing = await profile.findOne({ email });
 
         const data = {
