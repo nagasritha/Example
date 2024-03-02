@@ -120,7 +120,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
 router.post('/name', upload.single('imageUrl'), async(request,response)=>{
     const {name} = request.body;
     const existing = await Name.findOne({name});
-    const imageUrl= `https://example-na5m.onrender.com/uploads/${request.file.filename}`;
+    const imageUrl= `https://example-na5m.onrender.com/api/uploads/${request.file.filename}`;
     if(existing){
       response.send('user already exists');
     }
