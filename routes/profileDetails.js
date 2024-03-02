@@ -11,22 +11,22 @@ const profile = require('../Models/profile');
 const enquire = require('../Models/enquire');
 
 const storage = multer.diskStorage({
-    destination : function(req,file,cb){
-        cb(null, path.join(__dirname , '../uploads/images'));
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/') // Store uploaded files in the 'uploads' directory
     },
-    filename : function(req, file, cb){
+    filename: function (req, file, cb) {
         cb(null, file.originalname)
     }
-})
-
-const upload = multer({storage: storage});
+  });
+  
+  const upload = multer({ storage: storage });
 
 router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), async (request, response) => {
     const { name, about, educationStatus, phoneNumber, address, country, state, instaProfile, twitterProfile, facebookProfile, linkedinProfile } = request.body;
     const { id, email } = request;
     try {
         const user_id = id;
-        const imageUrl = `https://example-keij.vercel.app/uploads/images/${request.file.filename}`;
+        const imageUrl=`https://example-keij.vercel.app/uploads/${request.file.filename}`;
         const existing = await profile.findOne({ email });
 
         const data = {
@@ -87,7 +87,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
     const {email,id} = request;
     try {
         const user_id = id;
-        const imageUrl = `https://example-keij.vercel.app/uploads/images/${request.file.filename}`;
+        const imageUrl=`https://example-keij.vercel.app/uploads/${request.file.filename}`;
         const existing = await enquire.findOne({ email });
         console.log(existing);
         const data = {
