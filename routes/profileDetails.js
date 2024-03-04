@@ -20,14 +20,16 @@ const storage = multer.diskStorage({
     }
   });
   
-  const upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
+const imageUploder = require("../helpers/upload");
 
 router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), async (request, response) => {
+   
     const { name, about, educationStatus, phoneNumber, address, country, state, instaProfile, twitterProfile, facebookProfile, linkedinProfile } = request.body;
     const { id, email } = request;
     try {
         const user_id = id;
-        const imageUrl=`https://example-na5m.onrender.com/uploads/${request.file.filename}`;
+        const imageUrl=await imageUploder.uploadFile(request.file.path);
         const existing = await profile.findOne({ email });
 
         const data = {
@@ -88,7 +90,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
     const {email,id} = request;
     try {
         const user_id = id;
-        const imageUrl=`https://example-na5m.onrender.com/uploads/${request.file.filename}`;
+        const imageUrl=await imageUploder.uploadFile(request.file.path);
         const existing = await enquire.findOne({ email });
         console.log(existing);
         const data = {
@@ -120,7 +122,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
 router.post('/name', upload.single('imageUrl'), async(request,response)=>{
     const {name} = request.body;
     const existing = await Name.findOne({name});
-    const imageUrl= `https://example-na5m.onrender.com/api/uploads/${request.file.filename}`;
+    const imageUrl=await imageUploder.uploadFile(request.file.path);
     if(existing){
       response.send('user already exists');
     }
