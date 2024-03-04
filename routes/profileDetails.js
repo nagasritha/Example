@@ -99,7 +99,7 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
             address,
             exam_city :examCity,
             exam_center : examCenter,
-            busStop,
+            bus_stop:busStop,
             email,
             user_id,
             exam,
