@@ -1,6 +1,5 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
 const authenticateToken = require("../middleware/authentication");
 
 const router = express();
@@ -86,7 +85,7 @@ router.get('/userProfiles',authenticateToken,async(request,response)=>{
 });
 
 router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async (request,response)=>{
-    const { name, whatsappNumber, address, examCity, examCenter,exam,busStop } = request.body;
+    const { name, whatsappNumber, address, examCity, examCenter,exam,busStop,service } = request.body;
     const {email,id} = request;
     try {
         const user_id = id;
@@ -103,7 +102,8 @@ router.post('/submit-enquire',authenticateToken,upload.single('admitCard'),async
             email,
             user_id,
             exam,
-            admit_card_path: imageUrl
+            admit_card_path: imageUrl,
+            service
         };
 
         if (!existing) {

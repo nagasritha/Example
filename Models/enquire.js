@@ -14,11 +14,12 @@ const enquireSchema = mongoose.Schema({
   admit_card_path : String,
   exam : String,
   bus_stop: String,
-  email : {
+  service : {
     type:String,
     require:true,
     unique : true
-  }
+  },
+  email : String
 })
 
 module.exports = mongoose.model("enquire",enquireSchema);

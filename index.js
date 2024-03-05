@@ -121,5 +121,7 @@ app.get('/get',authentication,async(req,res)=>{
 
 //router
 const profileDetails = require('./routes/profileDetails');
+const home = require('./routes/home');
 
 app.use('/api', profileDetails);
+app.use('/home',home);
