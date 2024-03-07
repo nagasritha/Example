@@ -39,7 +39,7 @@ mongoose
 const Name = require('./Models/test');
 const User =require('./Models/user');
 const LogginUsers = require('./Models/logginUsers');
-
+const admin = require('./Models/admin')
 //Routes
 app.post('/name', async(request,response)=>{
   const {name} = request.body;
@@ -117,6 +117,22 @@ app.get('/get',authentication,async(req,res)=>{
   const {id,email}= req;
   console.log(id,email);
   res.send('called');
+})
+
+app.get('/admin', authentication,async(request,response)=>{
+  try{
+    const {email} = request
+    const data = await admin.findOne({email});
+    console.log(data);
+    if(data!==null){
+      response.status(200).send({"message":"Admin"})
+    }
+    else{
+        response.status(400).send({"message":"Not an Admins"});
+    }
+  }catch(error){
+    response.status(500).send({"message":"Server error"});
+  }
 })
 
 //router
