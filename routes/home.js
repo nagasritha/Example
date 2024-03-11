@@ -32,7 +32,7 @@ const upload = multer({ storage: storage });
 
 router.put('/home',authenticateToken,adminAuthentication,upload.fields([{ name: 'bannerUrl', maxCount: 1 }, { name: 'backgroundUrlSm', maxCount: 1 },{ name: 'backgroundUrlLg', maxCount: 1 }]), authenticateToken, async (request, response) => {
   if (!request.files || !request.files['bannerUrl'] || !request.files['backgroundUrlSm'] || !request.files['backgroundUrlLg']) {
-      return response.status(400).send({ message: 'No file found' });
+      return response.status(400).send({ "message": 'No file found' });
   }
 
   try { 

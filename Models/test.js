@@ -9,6 +9,10 @@ const schema = mongoose.Schema({
     imageUrl : {
         type :String,
         required : true
+    },
+    email : {
+        type: String,
+        required : true
     }
 });
 
