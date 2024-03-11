@@ -92,13 +92,17 @@ router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async
    try{
     const {email,id}=request
     const {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate} = request.body
+    console.log(name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate)
     const inputDate = new Date(examDate);
     const difference = differenceInDays(inputDate,new Date());
+    if(!request.file){
+       return response.status(400).send({"message":"File does not exists"});
+    }
     const admitCard = await imageUploder.uploadFile(request.file.path);
     const userId = id;
     if(difference > 4){
     const existing = await enquire.findOne({email});
-    const data = {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate,admitCard,requestStatus,email,userId};
+    const data = {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate,admitCard,email,userId};
     if(existing === null){
      const query = new enquire(data);
      await query.save();
@@ -146,7 +150,7 @@ router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(reque
   const {requestStatus} = request.body
   console.log(id , requestStatus);
   try{
-    await enquire.findOneAndUpdate({_id:id});
+    await enquire.findOneAndUpdate({_id:id},{requestStatus});
     let message = '';
     const fetch = await enquire.findOne({_id:id},{email:1});
     const email= fetch.email;
