@@ -20,11 +20,11 @@ const storage = multer.diskStorage({
         cb(null, file.originalname)
     }
   });
-  
+
+  //middlewares
 const upload = multer({ storage: storage });
 const imageUploder = require("../helpers/upload");
 const adminVerification = require('../middleware/adminVerification');
-const notification = require('../Models/notifications');
 
 router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), async (request, response) => {
    
@@ -91,7 +91,7 @@ router.get('/userProfiles',authenticateToken,async(request,response)=>{
 router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async(request,response)=>{
    try{
     const {email,id}=request
-    const {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate,requestStatus}= request.body
+    const {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate} = request.body
     const inputDate = new Date(examDate);
     const difference = differenceInDays(inputDate,new Date());
     const admitCard = await imageUploder.uploadFile(request.file.path);
@@ -114,18 +114,44 @@ router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async
     response.status(400).send({"message":"Failed to add the data"});
    }
 })
+router.get('/user-enquire',authenticateToken,async(request,response)=>{
+const {email} = request;
+try { 
+    const fetch = await enquire.findOne({email});
+    response.status(200).send({"Enquire":fetch});
+}catch(error){
+    response.status(400).send({"message":"Failed to Fetch the data"});
+}
+})
+router.get('/booking-history',authenticateToken,async(request,response)=>{
+    try { 
+        const fetch = await enquire.find({requestStatus:"Pending"});
+        response.status(200).send({"Enquire":fetch});
+    }catch(error){
+        response.status(400).send({"message":"Failed to Fetch the data"});
+    }
+    })
+router.get('/history',authenticateToken,async(request,response)=>{
+    try { 
+        const fetch = await enquire.find({requestStatus:"Approved"});
+        response.status(200).send({"Enquire":fetch});
+    }catch(error){
+        response.status(400).send({"message":"Failed to Fetch the data"});
+    }
+    })
+
 
 router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(request,response)=>{
   const {id} = request.params
   const {requestStatus} = request.body
-  console.log(id,requestStatus);
+  console.log(id , requestStatus);
   try{
     await enquire.findOneAndUpdate({_id:id});
     let message = '';
     const fetch = await enquire.findOne({_id:id},{email:1});
     const email= fetch.email;
     
-    if(requestStatus){
+    if(requestStatus==="Approved"){
         message = "Your Request Accepted";
     }else{
         message = "Sorry, Your Request Rejected";
@@ -139,7 +165,8 @@ router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(reque
   }
 
 
-})
+});
+
 router.get('/notifications' , authenticateToken , async(request,response)=>{
   try{
     const data = await notifications.find();
@@ -147,8 +174,9 @@ router.get('/notifications' , authenticateToken , async(request,response)=>{
   }catch(error){
     response.status(400).send({"message":"Failed to fetch"});
   }
-})
-router.post('/name', authenticateToken,upload.single('imageUrl'), async(request,response)=>{
+});
+
+router.post('/name', authenticateToken, upload.single('imageUrl'), async(request,response)=>{
     const email = request.email
     const {name} = request.body;
     const existing = await Name.findOne({name});

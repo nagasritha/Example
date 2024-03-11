@@ -54,9 +54,14 @@ const enquireSchema = mongoose.Schema({
         require:true
     },
     requestStatus  : {
-        type : Boolean,
-        default : false,
-        require : true
+        type : String,
+        default : "Pending",
+        env : ["Pending","Approved","Rejected"]
+    },
+    serviceStatus : {
+        type : String,
+        env : ["Yet to start","In Progress","Completed"],
+        default : "Yet to start"
     }
 });
 
