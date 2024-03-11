@@ -143,7 +143,15 @@ router.get('/history',authenticateToken,async(request,response)=>{
         response.status(400).send({"message":"Failed to Fetch the data"});
     }
     })
-
+router.get('/user-history',authenticateToken,async(request,response)=>{
+    const {email}=request
+    try{
+        const data = await enquire.findOne({email});
+        response.status(200).send({"Enquire":data});
+    }catch(error){
+        response.status(400).send({"message":"Failed to push the data"})
+    }
+})
 
 router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(request,response)=>{
   const {id} = request.params
