@@ -10,6 +10,7 @@ router.use(express.json());
 const profile = require('../Models/profile');
 const enquire = require('../Models/enquire');
 const Name = require('../Models/test');
+const notifications = require('../Models/notifications');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -22,6 +23,8 @@ const storage = multer.diskStorage({
   
 const upload = multer({ storage: storage });
 const imageUploder = require("../helpers/upload");
+const adminVerification = require('../middleware/adminVerification');
+const notification = require('../Models/notifications');
 
 router.post('/submit-profile', authenticateToken, upload.single('profileUrl'), async (request, response) => {
    
@@ -112,6 +115,39 @@ router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async
    }
 })
 
+router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(request,response)=>{
+  const {id} = request.params
+  const {requestStatus} = request.body
+  console.log(id,requestStatus);
+  try{
+    await enquire.findOneAndUpdate({_id:id});
+    let message = '';
+    const fetch = await enquire.findOne({_id:id},{email:1});
+    const email= fetch.email;
+    
+    if(requestStatus){
+        message = "Your Request Accepted";
+    }else{
+        message = "Sorry, Your Request Rejected";
+    }
+    const notification=new notifications({message,email});
+    await notification.save();
+    response.status(200).send({"message":"Status Updated"});
+  }catch(error){
+    console.log(error);
+    response.status(400).send({"message":"Something went wrong"});
+  }
+
+
+})
+router.get('/notifications' , authenticateToken , async(request,response)=>{
+  try{
+    const data = await notifications.find();
+    response.status(200).send({"Notification" : data});
+  }catch(error){
+    response.status(400).send({"message":"Failed to fetch"});
+  }
+})
 router.post('/name', authenticateToken,upload.single('imageUrl'), async(request,response)=>{
     const email = request.email
     const {name} = request.body;
