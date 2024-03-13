@@ -147,6 +147,16 @@ router.get('/user-history',authenticateToken,async(request,response)=>{
     }
 })
 
+router.get('/user-history/:id',authenticateToken,async(request,response)=>{
+    const {id}=request.params
+    try{
+        const data = await enquire.findOne({_id:id});
+        response.status(200).send({"Enquire":data});
+    }catch(error){
+        response.status(400).send({"message":"Failed to push the data"})
+    }
+})
+
 router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(request,response)=>{
   const {id} = request.params
   const {requestStatus,message} = request.body
