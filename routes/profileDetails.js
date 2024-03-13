@@ -95,6 +95,8 @@ router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async
     console.log(name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate)
     const inputDate = new Date(examDate);
     const difference = differenceInDays(inputDate,new Date());
+    const formatedDate = `${inputDate.getFullYear()}-${inputDate.getMonth()+1}-${inputDate.getDate()}`;
+    console.log(formatedDate);
     if(!request.file){
        return response.status(400).send({"message":"File does not exists"});
     }
@@ -102,11 +104,12 @@ router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async
     const userId = id;
     if(difference > 4){
     const existing = await enquire.findOne({email});
-    const data = {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate,admitCard,email,userId};
+    const data = {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate : formatedDate,admitCard,email,userId};
     if(existing === null){
      const query = new enquire(data);
      await query.save();
     }else{
+        console.log("called");
         await enquire.findOneAndUpdate({email},{data});
     }
      response.status(200).send({"message":"Form submited successfully"})
@@ -117,15 +120,6 @@ router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async
     console.log(error);
     response.status(400).send({"message":"Failed to add the data"});
    }
-})
-router.get('/user-enquire',authenticateToken,async(request,response)=>{
-const {email} = request;
-try { 
-    const fetch = await enquire.findOne({email});
-    response.status(200).send({"Enquire":fetch});
-}catch(error){
-    response.status(400).send({"message":"Failed to Fetch the data"});
-}
 })
 router.get('/booking-history',authenticateToken,async(request,response)=>{
     try { 
@@ -155,19 +149,12 @@ router.get('/user-history',authenticateToken,async(request,response)=>{
 
 router.put('/submit-enquire/:id',authenticateToken,adminVerification,async(request,response)=>{
   const {id} = request.params
-  const {requestStatus} = request.body
+  const {requestStatus,message} = request.body
   console.log(id , requestStatus);
   try{
     await enquire.findOneAndUpdate({_id:id},{requestStatus});
-    let message = '';
     const fetch = await enquire.findOne({_id:id},{email:1});
     const email= fetch.email;
-    
-    if(requestStatus==="Approved"){
-        message = "Your Request Accepted";
-    }else{
-        message = "Sorry, Your Request Rejected";
-    }
     const notification=new notifications({message,email});
     await notification.save();
     response.status(200).send({"message":"Status Updated"});
