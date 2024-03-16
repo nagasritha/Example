@@ -100,7 +100,7 @@ router.get('/history',authenticateToken,async(request,response)=>{
 router.get('/user-history',authenticateToken,async(request,response)=>{
     const {email}=request
     try{
-        const data = await requests.findOne({email});
+        const data = await requests.find({email});
         response.status(200).send({"Enquire":data});
     }catch(error){
         response.status(400).send({"message":"Failed to push the data"})
