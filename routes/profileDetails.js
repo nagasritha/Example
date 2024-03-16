@@ -89,40 +89,6 @@ router.get('/userProfiles',authenticateToken,async(request,response)=>{
     }
 });
 
-router.post('/submit-enquire',authenticateToken,upload.single("admitCard"),async(request,response)=>{
-   try{
-    const {email,id}=request
-    const {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate} = request.body
-    console.log(name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate)
-    const inputDate = new Date(examDate);
-    const difference = differenceInDays(inputDate,new Date());
-    const formatedDate = `${inputDate.getFullYear()}-${inputDate.getMonth()+1}-${inputDate.getDate()}`;
-    console.log(formatedDate);
-    if(!request.file){
-       return response.status(400).send({"message":"File does not exists"});
-    }
-    const admitCard = await imageUploder.uploadFile(request.file.path);
-    const userId = id;
-    if(difference > 4){
-    const existing = await enquire.findOne({email});
-    const data = {name,whatsappNumber,address,city,serviceType,busStop,exam,examCity,examCenter,examDate : formatedDate,admitCard,email,userId};
-    if(existing === null){
-     const query = new enquire(data);
-     await query.save();
-    }else{
-        console.log("called");
-        await enquire.findOneAndUpdate({email},{data});
-    }
-     response.status(200).send({"message":"Form submited successfully"})
-    }else{
-        response.status(400).send({"message":"Apologies, We need your request atleast 4 days before your exam"})
-    }
-   }catch(error){
-    console.log(error);
-    response.status(400).send({"message":"Failed to add the data"});
-   }
-})
-
 router.get('/history',authenticateToken,async(request,response)=>{
     try { 
         const fetch = await requests.find({requestStatus:"Approved"});
@@ -202,7 +168,7 @@ router.post('/name', authenticateToken, upload.single('imageUrl'), async(request
     response.send({data})
   })
 
-router.post('/request', authenticateToken, upload.single('admitCard'), async(request,response)=>{
+router.post('/submit-enquire', authenticateToken, upload.single('admitCard'), async(request,response)=>{
     try{
     const {email,id} = request
     console.log(request.body)
