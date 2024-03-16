@@ -15,6 +15,7 @@ const uploadFile = async(filepath)=>{
        const data = await images.findOne({imagePath : filepath});
        if(data == null){
         const url = await cloudinary.uploader.upload(filepath);
+        console.log(url);
         result = url.secure_url;
         const imageData = new images({imagePath : filepath, imageUrl : result});
         await imageData.save();
