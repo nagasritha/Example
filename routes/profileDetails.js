@@ -202,7 +202,7 @@ router.post('/submit-enquire', authenticateToken, upload.single('admitCard'), as
         examCity,
         examCenter});
       await newName.save();
-      response.send('name added');
+      response.status(200).send({"message":'name added'});
 
 }catch(error){
     console.log(error);
